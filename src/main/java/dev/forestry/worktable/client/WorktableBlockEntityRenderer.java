@@ -11,7 +11,6 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
@@ -45,7 +44,7 @@ public class WorktableBlockEntityRenderer implements BlockEntityRenderer<Worktab
 
             for (int i = 0; i < memorizedRecipes.size(); i++) {
                 MemorizedRecipe recipe = memorizedRecipes.get(i);
-                ItemStack item = recipe.getSelectedRecipe().getResultItem(RegistryAccess.EMPTY);
+                ItemStack item = recipe.getSelectedRecipe().getResultItem(blockEntity.getLevel().registryAccess());
                 if (item.isEmpty()) return;
 
                 // Calculate the row and column for each item starting from top-left
