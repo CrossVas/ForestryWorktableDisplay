@@ -1,6 +1,7 @@
 package dev.forestry.worktable.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import forestry.worktable.blocks.WorktableBlock;
 import forestry.worktable.recipes.MemorizedRecipe;
 import forestry.worktable.tiles.WorktableTile;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -11,9 +12,11 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.core.Direction;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
 
@@ -27,6 +30,7 @@ public class WorktableBlockEntityRenderer implements BlockEntityRenderer<Worktab
     @Override
     public void render(WorktableTile blockEntity, float v, @NotNull PoseStack matrixStack, @NotNull MultiBufferSource multiBufferSource, int light, int i1) {
         List<MemorizedRecipe> memorizedRecipes = new ObjectArrayList<>();
+        BlockState state = blockEntity.getBlockState();
         // Gather memorized recipes
         for (int j = 0; j < 9; j++) {
             MemorizedRecipe memorizedRecipe = blockEntity.getMemory().getRecipe(j);
@@ -41,7 +45,8 @@ public class WorktableBlockEntityRenderer implements BlockEntityRenderer<Worktab
             final double spacing = 0.189;
             final double offset = 0.31;
             matrixStack.translate(0, 1.0625, 0);
-
+            Direction direction = state.getValue(WorktableBlock.FACING);
+            float rotation = getRotation(direction);
             for (int i = 0; i < memorizedRecipes.size(); i++) {
                 MemorizedRecipe recipe = memorizedRecipes.get(i);
                 ItemStack item = recipe.getSelectedRecipe().getResultItem(blockEntity.getLevel().registryAccess());
@@ -55,6 +60,7 @@ public class WorktableBlockEntityRenderer implements BlockEntityRenderer<Worktab
 
                 matrixStack.pushPose();
                 matrixStack.translate(1 - offset - col * spacing, isItem ? - 0.06 : 0, 1 - offset - row * spacing);
+                matrixStack.mulPose((new Quaternionf()).rotationY(rotation * ((float) Math.PI / 180F)));
                 float scale = isItem ? itemScale : blockScale;
                 matrixStack.scale(scale, scale, scale);
                 if (isItem) { // rotate item model
@@ -62,10 +68,18 @@ public class WorktableBlockEntityRenderer implements BlockEntityRenderer<Worktab
                 }
                 BakedModel bakedmodel = Minecraft.getInstance().getItemRenderer().getModel(item, blockEntity.getLevel(), null, 0);
                 int lightAbove = LevelRenderer.getLightColor(Objects.requireNonNull(blockEntity.getLevel()), blockEntity.getBlockPos().above());
-                Minecraft.getInstance().getItemRenderer().render(item, ItemDisplayContext.FIXED,
-                        false, matrixStack, multiBufferSource, lightAbove, OverlayTexture.NO_OVERLAY, bakedmodel);
+                Minecraft.getInstance().getItemRenderer().render(item, ItemDisplayContext.FIXED, false, matrixStack, multiBufferSource, lightAbove, OverlayTexture.NO_OVERLAY, bakedmodel);
                 matrixStack.popPose();
             }
         }
+    }
+
+    private int getRotation(Direction dir) {
+        return switch (dir) {
+            case DOWN, WEST, UP -> 90;
+            case NORTH -> 360;
+            case EAST -> 270;
+            case SOUTH -> 180;
+        };
     }
 }
