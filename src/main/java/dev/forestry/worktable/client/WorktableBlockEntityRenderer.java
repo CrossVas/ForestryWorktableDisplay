@@ -25,7 +25,8 @@ import java.util.Objects;
 
 public class WorktableBlockEntityRenderer implements BlockEntityRenderer<WorktableTile> {
 
-    public WorktableBlockEntityRenderer(BlockEntityRendererProvider.Context context) {}
+    public WorktableBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
+    }
 
     @Override
     public void render(WorktableTile blockEntity, float v, @NotNull PoseStack matrixStack, @NotNull MultiBufferSource multiBufferSource, int light, int i1) {
@@ -59,8 +60,10 @@ public class WorktableBlockEntityRenderer implements BlockEntityRenderer<Worktab
                 boolean isItem = !(item.getItem() instanceof BlockItem);
 
                 matrixStack.pushPose();
-                matrixStack.translate(1 - offset - col * spacing, isItem ? - 0.06 : 0, 1 - offset - row * spacing);
+                matrixStack.translate(0.5F, 0.5F, 0.5F);
                 matrixStack.mulPose((new Quaternionf()).rotationY(rotation * ((float) Math.PI / 180F)));
+                matrixStack.translate(-0.5F, -0.5F, (double) -0.5F);
+                matrixStack.translate(1 - offset - col * spacing, isItem ? -0.06 : 0, 1 - offset - row * spacing);
                 float scale = isItem ? itemScale : blockScale;
                 matrixStack.scale(scale, scale, scale);
                 if (isItem) { // rotate item model
@@ -77,7 +80,7 @@ public class WorktableBlockEntityRenderer implements BlockEntityRenderer<Worktab
     private int getRotation(Direction dir) {
         return switch (dir) {
             case DOWN, WEST, UP -> 90;
-            case NORTH -> 360;
+            case NORTH -> 0;
             case EAST -> 270;
             case SOUTH -> 180;
         };
