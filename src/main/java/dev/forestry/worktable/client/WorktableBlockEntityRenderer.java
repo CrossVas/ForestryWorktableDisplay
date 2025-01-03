@@ -29,7 +29,7 @@ public class WorktableBlockEntityRenderer implements BlockEntityRenderer<Worktab
     }
 
     @Override
-    public void render(WorktableTile blockEntity, float v, @NotNull PoseStack matrixStack, @NotNull MultiBufferSource multiBufferSource, int light, int i1) {
+    public void render(WorktableTile blockEntity, float partialTicks, @NotNull PoseStack matrixStack, @NotNull MultiBufferSource multiBufferSource, int light, int packedOverlay) {
         List<MemorizedRecipe> memorizedRecipes = new ObjectArrayList<>();
         BlockState state = blockEntity.getBlockState();
         // Gather memorized recipes
